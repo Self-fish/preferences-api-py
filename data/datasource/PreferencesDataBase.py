@@ -2,6 +2,8 @@ import configparser
 import certifi
 from pymongo import MongoClient
 
+from domain.model.LightPreferences import LightPreferences
+
 
 class PreferencesDataBase:
 
@@ -16,8 +18,6 @@ class PreferencesDataBase:
 
     def __get_database(self):
         client = MongoClient(self.__connect_to_database(), tlsCAFile=certifi.where())
-        db = client.test
-        print(db)
         return client["self-fish-db"]
 
     def find_by_device_id(self, device_id):
@@ -28,4 +28,14 @@ class PreferencesDataBase:
             if device_id == item["deviceId"]:
                 return item
         return None
+
+    def update_by_device_id(self, new_preferences: LightPreferences, device_id):
+        data_base = self.__get_database()
+        collection = data_base["preference"]
+        query = {"deviceId": device_id}
+        values = {"$set": {"lightsPreferences": {"mode": new_preferences.mode.name,
+                                                 "range": {"starting": new_preferences.range.starting,
+                                                           "finishing": new_preferences.range.finishing}}}}
+        collection.update_one(query, values)
+        return self.find_by_device_id(device_id)
 
