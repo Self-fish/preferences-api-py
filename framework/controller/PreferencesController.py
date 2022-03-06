@@ -21,7 +21,7 @@ class PreferencesController(Resource):
 
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('deviceId', required=True)  # add args
+        parser.add_argument('deviceId', required=True)
         args = parser.parse_args()
         preference: dict = self.__get_use_case.get_preferences(args['deviceId'])
         preference.pop("_id", None)
